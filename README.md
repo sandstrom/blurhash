@@ -38,9 +38,11 @@ puts Blurhash.encode(image.columns, image.rows, image.export_pixels)
 require 'blurhash'
 require 'ruby-vips'
 
-image = Vips::Image.new_from_file('foo.png', access: :sequential)
+# image = Vips::Image.new_from_file('foo.png', access: :sequential) # slower
+image = Vips::Image.thumbnail('foo.png', 100) # ideal to shrink first, otherwise blurhash will be slow (on full image data)
+image_data = image.colourspace(:srgb).extract_band(0, n: 3).to_a.flatten # remove any transparency
 
-puts Blurhash.encode(image.width, image.height, image.to_a.flatten)
+puts Blurhash.encode(image.width, image.height, image_data)
 ```
 
 To display the visual component once you have the blurhash string, you need another library in JavaScript, Swift, Kotlin and so on. Fore more information, see [the original blurhash repository](https://github.com/woltapp/blurhash).
